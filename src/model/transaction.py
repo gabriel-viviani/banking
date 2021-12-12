@@ -17,3 +17,7 @@ class Transaction(Base):
     account_id = Column(UUID(as_uuid=True), ForeignKey("account.id"))
 
     account = relationship("Account", back_populates="transactions")
+
+    def __init__(self, value: MONEY, account_id: UUID) -> None:
+        self.value = value
+        self.account_id = account_id

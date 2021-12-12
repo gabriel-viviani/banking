@@ -1,5 +1,6 @@
 from sqlalchemy import ForeignKey, String, Date, Column
 from sqlalchemy.orm import relationship
+from datetime import date
 from uuid import uuid4
 import UUID
 
@@ -15,3 +16,8 @@ class Person(Base):
     birth_date = Column(Date, nullable=False)
 
     account = relationship("Account", back_populates="person", uselist=False)
+
+    def __init__(self, name: str, cpf: str, birth_date: date) -> None:
+        self.name = name
+        self.cpf = cpf
+        self.birth_date = birth_date
