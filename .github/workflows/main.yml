@@ -15,3 +15,4 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "banking-challenge"
           heroku_email: "gabrielviviani98@hotmail.com"
+          usedocker: true
