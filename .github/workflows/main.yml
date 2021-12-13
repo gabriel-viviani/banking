@@ -17,6 +17,3 @@ jobs:
           heroku_email: "gabrielviviani98@hotmail.com"
           usedocker: true
           justlogin: true
-      - run: |
-          git remote add heroku git@heroku.com:<banking-challenge>.git
-          git push heroku master
