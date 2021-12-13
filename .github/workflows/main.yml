@@ -18,6 +18,5 @@ jobs:
           usedocker: true
           justlogin: true
       - run: |
-          # git config user.name "<NAME>" && git config user.email "<EMAIL>" # You may have to do this as well
           git remote add heroku git@heroku.com:<banking-challenge>.git
           git push heroku master
