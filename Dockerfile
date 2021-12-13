@@ -17,4 +17,4 @@ COPY ./src /code/src
 ENV DATABASE_URL=$DATABASE_URL 
 
 # 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "log-level", "debug"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--log-level", "debug"]
