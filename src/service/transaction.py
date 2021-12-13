@@ -1,21 +1,21 @@
+from sqlalchemy.dialects.postgresql import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from decimal import Decimal
 
-from repository.account import get_account_by_id
-from repository.transaction import deposit as repository_deposit
-from repository.transaction import withdraw as repository_withdraw
-from dto.transaction import TransactionIn
+from src.repository.account import get_account_by_id
+from src.repository.transaction import deposit as repository_deposit
+from src.repository.transaction import withdraw as repository_withdraw
+from src.dto.transaction import TransactionIn
 
 
 async def deposit(db: Session, deposit: TransactionIn) -> None:
-    if Decimal(deposit.value) < 0:
+    if deposit.value < 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="You are trying to withdraw, use another resource.",
         )
 
-    acc = await get_account_by_id(deposit.account_id)
+    acc = get_account_by_id(db, str(deposit.account_id))
     if not acc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -29,16 +29,18 @@ async def deposit(db: Session, deposit: TransactionIn) -> None:
         )
 
     repository_deposit(db, deposit)
+    acc.balance = acc.balance + deposit.value
+    db.commit()
 
 
 async def withdraw(db: Session, withdraw: TransactionIn) -> None:
-    if Decimal(withdraw.value) > 0:
+    if withdraw.value > 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="You are trying to deposit, use another resource.",
         )
 
-    acc = await get_account_by_id(withdraw.account_id)
+    acc = get_account_by_id(db, str(withdraw.account_id))
     if not acc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -52,3 +54,5 @@ async def withdraw(db: Session, withdraw: TransactionIn) -> None:
         )
 
     repository_withdraw(db, withdraw)
+    acc.balance = acc.balance + withdraw.value
+    db.commit()

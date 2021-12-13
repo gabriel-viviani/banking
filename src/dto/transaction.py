@@ -1,14 +1,14 @@
-from sqlalchemy.dialects.postgresql import MONEY
 from pydantic import BaseModel
 from datetime import datetime
-import UUID
+from decimal import Decimal
+from uuid import UUID
 
 
 class TransactionIn(BaseModel):
-    value: MONEY
+    value: Decimal
     account_id: UUID
 
 
 class TransactionOut(BaseModel):
-    value: MONEY
+    value: Decimal
     transaction_time: datetime

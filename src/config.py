@@ -3,8 +3,6 @@ from datetime import datetime
 
 import pytz
 
-import .config
-
 try:
     from dotenv import load_dotenv
 
@@ -21,8 +19,9 @@ def get_timezone_region() -> str:
 
 
 def generate_now() -> datetime:
-    tz = pytz.timezone(config.get_timezone_region())
+    tz = pytz.timezone(get_timezone_region())
     return datetime.now(tz)
 
+
 def get_database_url() -> str:
-    return os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL) 
+    return os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL)

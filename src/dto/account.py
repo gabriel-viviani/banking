@@ -1,11 +1,16 @@
-from sqlalchemy.dialects.postgresql import MONEY
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+from decimal import Decimal
+from datetime import date
 from enum import Enum
-import UUID
+from uuid import UUID
 
-from .person import PersonSchema
+
+class PersonSchema(BaseModel):
+    name: str
+    cpf: str
+    birth_date: date
 
 
 class AccountTypes(str, Enum):
@@ -15,12 +20,12 @@ class AccountTypes(str, Enum):
 
 
 class Account(BaseModel):
-    daily_withdraw_limit: MONEY
+    daily_withdraw_limit: Decimal
     account_type: AccountTypes
 
 
 class NewAccount(Account):
-    balance: Optional[MONEY]
+    balance: Decimal
     is_active: Optional[bool]
     person_id: UUID
 
@@ -28,10 +33,10 @@ class NewAccount(Account):
 class AccountOut(Account):
     id: UUID
     person: PersonSchema
-    balance: MONEY
+    balance: Decimal
     created_at: datetime
 
 
 class AccountBalance(BaseModel):
     person: PersonSchema
-    balance: MONEY
+    balance: Decimal

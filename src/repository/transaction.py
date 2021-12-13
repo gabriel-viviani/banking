@@ -1,15 +1,15 @@
 from sqlalchemy.orm import Session
-from typing import Any
+from sqlalchemy import and_
 from datetime import date
-import UUID
+from typing import Any
 
-from dto.transaction import TransactionIn
-from model.transaction import Transaction
+from src.dto.transaction import TransactionIn
+from src.model.transaction import Transaction
 
 
 def deposit(db: Session, deposit: TransactionIn) -> None:
     transaction = Transaction(
-        value=deposit.value, account_id=deposit.account_id
+        value=deposit.value, account_id=str(deposit.account_id)
     )
 
     db.add(transaction)
@@ -18,25 +18,30 @@ def deposit(db: Session, deposit: TransactionIn) -> None:
 
 def withdraw(db: Session, deposit: TransactionIn) -> None:
     transaction = Transaction(
-        value=deposit.value, account_id=deposit.account_id
+        value=deposit.value, account_id=str(deposit.account_id)
     )
 
     db.add(transaction)
     db.commit()
 
 
-async def get_bank_statement_date_filtered(
-    account_id: UUID,
+def get_bank_statement_date_filtered(
+    account_id: str,
     db: Session,
     start_date: date,
     end_date: date,
 ) -> Any:
-    return await db.query(Transaction).filter(
-        and_(
-            Transaction.account_id=account_id,
-            Transaction.transaction_time.between(start_date, end_date)
+    return (
+        db.query(Transaction)
+        .filter(
+            and_(
+                Transaction.account_id == account_id,
+                Transaction.transaction_time.between(start_date, end_date),
+            )
         )
+        .all()
     )
 
-async def get_bank_statement(account_id: UUID, db: Session) -> Any:
-    return await db.query(Transaction).filter_by(account_id=account_id)
+
+def get_bank_statement(account_id: str, db: Session) -> Any:
+    return db.query(Transaction).filter_by(account_id=account_id).all()
