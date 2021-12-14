@@ -11,14 +11,10 @@ router = APIRouter()
 
 
 @router.post("/deposit", status_code=status.HTTP_202_ACCEPTED)
-async def deposit(
-    deposit: TransactionIn, db: Session = Depends(get_db)
-) -> None:
-    await service_deposit(db, deposit)
+def deposit(deposit: TransactionIn, db: Session = Depends(get_db)) -> None:
+    service_deposit(db, deposit)
 
 
 @router.post("/withdraw", status_code=status.HTTP_202_ACCEPTED)
-async def withdraw(
-    withdraw: TransactionIn, db: Session = Depends(get_db)
-) -> None:
-    await service_withdraw(db, withdraw)
+def withdraw(withdraw: TransactionIn, db: Session = Depends(get_db)) -> None:
+    service_withdraw(db, withdraw)

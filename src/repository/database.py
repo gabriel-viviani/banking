@@ -2,7 +2,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine
 
-from src.config import get_database_url
+from src.config import get_database_url, get_environment, TEST_ENV
 
 engine = create_engine(get_database_url())
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -20,4 +20,8 @@ def get_db() -> Session:
 
 
 def init_db() -> None:
-    Base.metadata.create_all(bind=engine)
+    env = get_environment()
+    if env != TEST_ENV:
+        Base.metadata.create_all(bind=engine)
+
+    return

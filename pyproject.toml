@@ -19,6 +19,7 @@ uvicorn = "^0.16.0"
 Faker = "^10.0.0"
 SQLAlchemy-Utils = "^0.37.9"
 requests = "^2.26.0"
+pytest-env = "^0.6.2"
 
 [tool.poetry.dev-dependencies]
 

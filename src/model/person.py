@@ -3,7 +3,12 @@ from sqlalchemy import (
     String,
     Date,
 )
-from src.repository.database import Base, SessionLocal
+from src.repository.database import (
+    Base,
+    SessionLocal,
+    TEST_ENV,
+    get_environment,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import date
@@ -48,4 +53,5 @@ def create_mock_data() -> None:
     db.close()
 
 
-create_mock_data()
+if get_environment() != TEST_ENV:
+    create_mock_data()

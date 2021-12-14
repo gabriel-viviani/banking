@@ -1,7 +1,7 @@
 from decimal import Decimal
-from datetime import Date
+from datetime import date
 import random
-import Faker
+from faker import Faker
 
 
 def random_valid_cpf() -> str:
@@ -22,11 +22,20 @@ def random_int() -> int:
     return x
 
 
-def random_decimal() -> Decimal:
-    x: Decimal = Faker().random_decimal()
+def rand_positive_decimal() -> Decimal:
+    x: Decimal = Faker().pydecimal(
+        left_digits=11, right_digits=5, positive=True
+    )
     return x
 
 
-def rand_date() -> Date:
-    x: Date = Faker().date()
+def rand_date() -> date:
+    x: date = Faker().date()
+    return x
+
+
+def rand_negative_decimal() -> Decimal:
+    x: Decimal = Faker().pydecimal(
+        left_digits=11, right_digits=5, positive=False
+    )
     return x

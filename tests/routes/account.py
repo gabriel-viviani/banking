@@ -1,7 +1,10 @@
 import pytest
+from uuid import uuid4
+from decimal import Decimal
 
 from tests.helpers import (
-    random_decimal,
+    rand_positive_decimal,
+    rand_negative_decimal,
     random_name,
     random_valid_cpf,
     rand_date,
@@ -9,7 +12,6 @@ from tests.helpers import (
 from src.model.account import Account, AccountTypes
 from src.model.transaction import Transaction
 from src.model.person import Person
-from src.dto.account import NewAccount
 
 
 def test_account_balance(db_acc, client):
@@ -21,23 +23,22 @@ def test_account_balance(db_acc, client):
 
 
 def test_account_transactions(db_acc, client, db):
-    _first_transaction = Transaction(random_decimal(), db_acc)
-    _second_transaction = Transaction(random_decimal(), db_acc)
-
-    balance = db_acc.balance + _first_transaction + _second_transaction
+    _first_transaction = Transaction(
+        value=rand_negative_decimal(), account_id=db_acc.id
+    )
+    _second_transaction = Transaction(
+        value=rand_positive_decimal(), account_id=db_acc.id
+    )
 
     db.add(_first_transaction)
     db.add(_second_transaction)
     db.flush()
-    db.refresh(_first_transaction, _second_transaction)
 
     res = client.get(f"/accounts/{db_acc.id}/transactions")
     assert res.status_code == 200
 
     transactions = res.json()
     assert len(transactions) > 0
-
-    assert balance == balance + (sum(t["value"] for t in transactions))
 
 
 def test_get_acc_balance_blocked_acc(db_acc, db, client):
@@ -46,7 +47,7 @@ def test_get_acc_balance_blocked_acc(db_acc, db, client):
     db.refresh(db_acc)
 
     res = client.get(f"/accounts/{db_acc.id}/balance")
-    assert res.status_code == 404
+    assert res.status_code == 405
 
     db_acc.is_active = True
     db.flush()
@@ -54,8 +55,8 @@ def test_get_acc_balance_blocked_acc(db_acc, db, client):
 
 
 def test_get_acc_balance_account_not_found(client):
-    res = client.get(f"/accounts/{random_name()}/balance")
-    assert res.status_code == 409
+    res = client.get(f"/accounts/{uuid4()}/balance")
+    assert res.status_code == 404
 
 
 def test_get_acc_transactions_blocked_acc(db_acc, db, client):
@@ -65,7 +66,7 @@ def test_get_acc_transactions_blocked_acc(db_acc, db, client):
     db.refresh(db_acc)
 
     res = client.get(f"/accounts/{db_acc.id}/transactions")
-    assert res.status_code == 404
+    assert res.status_code == 405
 
     db_acc.is_active = True
     db.flush()
@@ -73,8 +74,8 @@ def test_get_acc_transactions_blocked_acc(db_acc, db, client):
 
 
 def test_get_acc_transactions_account_not_found(client):
-    res = client.get(f"/accounts/{random_name()}/transactions")
-    assert res.status_code == 409
+    res = client.get(f"/accounts/{uuid4()}/transactions")
+    assert res.status_code == 404
 
 
 def test_create_acc(client, db):
@@ -83,13 +84,12 @@ def test_create_acc(client, db):
     db.flush()
     db.refresh(_person)
 
-    _new_acc = NewAccount(
-        balance=random_decimal(),
-        is_active=True,
-        person_id=_person.id,
-        daily_withdraw_limit=random_decimal(),
-        account_type=AccountTypes.checking,
-    )
+    _new_acc = {
+        "balance": str(rand_positive_decimal()),
+        "person_id": str(_person.id),
+        "daily_withdraw_limit": str(rand_positive_decimal()),
+        "account_type": AccountTypes.checking,
+    }
 
     acc_number = len(db.query(Account).all())
 
@@ -106,18 +106,24 @@ def test_create_acc_conflict(client, db):
     db.flush()
     db.refresh(_person)
 
-    _new_acc = NewAccount(
-        balance=random_decimal(),
-        is_active=True,
+    _new_acc = Account(
+        balance=rand_positive_decimal(),
         person_id=_person.id,
-        daily_withdraw_limit=random_decimal(),
+        daily_withdraw_limit=rand_positive_decimal(),
         account_type=AccountTypes.checking,
     )
 
     db.add(_new_acc)
     db.flush()
 
-    res = client.post("/accounts/", json=_new_acc)
+    new_acc = {
+        "balance": str(rand_positive_decimal()),
+        "person_id": str(_person.id),
+        "daily_withdraw_limit": str(rand_positive_decimal()),
+        "account_type": AccountTypes.checking,
+    }
+
+    res = client.post("/accounts/", json=new_acc)
     assert res.status_code == 409
 
 
@@ -130,7 +136,7 @@ def test_block_acc(client, db_acc, db):
 
 
 def test_block_acc_not_found(client):
-    res = client.put(f"/accounts/{random_name()}/block")
+    res = client.put(f"/accounts/{uuid4()}/block")
     assert res.status_code == 404
 
 

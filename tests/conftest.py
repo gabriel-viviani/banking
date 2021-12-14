@@ -9,7 +9,7 @@ from src.config import get_test_db_url
 from src.main import app
 
 from tests.helpers import (
-    random_decimal,
+    rand_positive_decimal,
     random_name,
     random_valid_cpf,
     rand_date,
@@ -60,7 +60,10 @@ def db_acc(db):
     db.refresh(_person)
 
     _acc = Account(
-        random_decimal(), random_decimal(), AccountTypes.checking, _person.id
+        rand_positive_decimal(),
+        rand_positive_decimal(),
+        AccountTypes.checking,
+        _person.id,
     )
 
     db.add(_acc)

@@ -20,7 +20,7 @@ from src.dto.transaction import TransactionOut
 from src.dto.account import PersonSchema
 
 
-async def create_account(db: Session, new_acc: NewAccount) -> None:
+def create_account(db: Session, new_acc: NewAccount) -> None:
     account = get_account_by_person_id(
         db, str(new_acc.person_id), new_acc.account_type
     )
@@ -33,7 +33,7 @@ async def create_account(db: Session, new_acc: NewAccount) -> None:
     save_account(db, new_acc)
 
 
-async def get_balance(db: Session, account_id: str) -> AccountBalance:
+def get_balance(db: Session, account_id: str) -> AccountBalance:
     account = get_account_by_id(db, account_id)
     if not account:
         raise HTTPException(
@@ -57,7 +57,7 @@ async def get_balance(db: Session, account_id: str) -> AccountBalance:
     )
 
 
-async def block(db: Session, account_id: str) -> None:
+def block(db: Session, account_id: str) -> None:
     account = get_account_by_id(db, account_id)
     if not account:
         raise HTTPException(
@@ -74,7 +74,7 @@ async def block(db: Session, account_id: str) -> None:
     block_account(db, account)
 
 
-async def bank_statement(
+def bank_statement(
     account_id: str,
     db: Session,
     start_date: Optional[date],
