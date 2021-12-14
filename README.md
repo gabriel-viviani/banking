@@ -38,6 +38,12 @@ docker run -p 80:80 -e DB_URL=postgresql://user:pw@host:5432/db banking-challeng
 ```
 ##### Now you can access [docs at](http://0.0.0.0/docs)
 
+### To run tests you need to execute:
+```sh
+pytest tests/routes/transaction.py
+pytest tests/routes/account.py
+```
+
 ## Considerations:
 * A basic layered design patter was used to keep dependency only for inner layer
 * A much better approach would be use a complex messaging/events architecture as [described here](https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/) or at [cosmic python.](https://www.cosmicpython.com/book/chapter_11_external_events.html)
