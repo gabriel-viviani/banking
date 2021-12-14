@@ -25,3 +25,7 @@ def generate_now() -> datetime:
 
 def get_database_url() -> str:
     return os.environ.get("DB_URL", DEFAULT_DATABASE_URL)
+
+
+def get_test_db_url() -> str:
+    return os.environ.get("TEST_DB_URL", DEFAULT_DATABASE_URL)

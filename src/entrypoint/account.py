@@ -20,7 +20,11 @@ async def create_account(
     await create(db, new_acc)
 
 
-@router.get("/{account_id}/balance", status_code=status.HTTP_200_OK)
+@router.get(
+    "/{account_id}/balance",
+    status_code=status.HTTP_200_OK,
+    response_model=AccountBalance,
+)
 async def get_balance(
     account_id: str, db: Session = Depends(get_db)
 ) -> AccountBalance:
@@ -32,7 +36,11 @@ async def block_account(account_id: str, db: Session = Depends(get_db)) -> None:
     await block(db, account_id)
 
 
-@router.get("/{account_id}/transactions", status_code=status.HTTP_200_OK)
+@router.get(
+    "/{account_id}/transactions",
+    status_code=status.HTTP_200_OK,
+    response_model=List[TransactionOut],
+)
 async def get_bank_statement(
     account_id: str,
     start_date: Optional[date] = Query(None),

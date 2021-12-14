@@ -42,4 +42,6 @@ docker run -p 80:80 -e DB_URL=postgresql://user:pw@host:5432/db banking-challeng
 * A basic layered design patter was used to keep dependency only for inner layer
 * A much better approach would be use a complex messaging/events architecture as [described here](https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/) or at [cosmic python.](https://www.cosmicpython.com/book/chapter_11_external_events.html)
 * It's simple test relates a admin view where user who is getting and inserting data at resources has access to all data. Otherwise will be a huge security issue an user accessing other's data.
+* I've used [simple postgres dockerfile](https://docs.docker.com/samples/postgresql_service/) to support application. You can also ask me for already provisioned db url's.
+
 

@@ -1,0 +1,143 @@
+import pytest
+
+from tests.helpers import (
+    random_decimal,
+    random_name,
+    random_valid_cpf,
+    rand_date,
+)
+from src.model.account import Account, AccountTypes
+from src.model.transaction import Transaction
+from src.model.person import Person
+from src.dto.account import NewAccount
+
+
+def test_account_balance(db_acc, client):
+    res = client.get(f"/accounts/{db_acc.id}/balance")
+    assert res.status_code == 200
+
+    account = res.json()
+    assert account["balance"] is not None
+
+
+def test_account_transactions(db_acc, client, db):
+    _first_transaction = Transaction(random_decimal(), db_acc)
+    _second_transaction = Transaction(random_decimal(), db_acc)
+
+    balance = db_acc.balance + _first_transaction + _second_transaction
+
+    db.add(_first_transaction)
+    db.add(_second_transaction)
+    db.flush()
+    db.refresh(_first_transaction, _second_transaction)
+
+    res = client.get(f"/accounts/{db_acc.id}/transactions")
+    assert res.status_code == 200
+
+    transactions = res.json()
+    assert len(transactions) > 0
+
+    assert balance == balance + (sum(t["value"] for t in transactions))
+
+
+def test_get_acc_balance_blocked_acc(db_acc, db, client):
+    db_acc.is_active = False
+    db.flush()
+    db.refresh(db_acc)
+
+    res = client.get(f"/accounts/{db_acc.id}/balance")
+    assert res.status_code == 404
+
+    db_acc.is_active = True
+    db.flush()
+    db.refresh(db_acc)
+
+
+def test_get_acc_balance_account_not_found(client):
+    res = client.get(f"/accounts/{random_name()}/balance")
+    assert res.status_code == 409
+
+
+def test_get_acc_transactions_blocked_acc(db_acc, db, client):
+    db_acc.is_active = False
+    db.add(db_acc)
+    db.flush()
+    db.refresh(db_acc)
+
+    res = client.get(f"/accounts/{db_acc.id}/transactions")
+    assert res.status_code == 404
+
+    db_acc.is_active = True
+    db.flush()
+    db.refresh(db_acc)
+
+
+def test_get_acc_transactions_account_not_found(client):
+    res = client.get(f"/accounts/{random_name()}/transactions")
+    assert res.status_code == 409
+
+
+def test_create_acc(client, db):
+    _person = Person(random_name(), random_valid_cpf(), rand_date())
+    db.add(_person)
+    db.flush()
+    db.refresh(_person)
+
+    _new_acc = NewAccount(
+        balance=random_decimal(),
+        is_active=True,
+        person_id=_person.id,
+        daily_withdraw_limit=random_decimal(),
+        account_type=AccountTypes.checking,
+    )
+
+    acc_number = len(db.query(Account).all())
+
+    res = client.post("/accounts/", json=_new_acc)
+    assert res.status_code == 201
+
+    acc_number_after_insert = len(db.query(Account).all())
+    assert acc_number_after_insert is (acc_number + 1)
+
+
+def test_create_acc_conflict(client, db):
+    _person = Person(random_name(), random_valid_cpf(), rand_date())
+    db.add(_person)
+    db.flush()
+    db.refresh(_person)
+
+    _new_acc = NewAccount(
+        balance=random_decimal(),
+        is_active=True,
+        person_id=_person.id,
+        daily_withdraw_limit=random_decimal(),
+        account_type=AccountTypes.checking,
+    )
+
+    db.add(_new_acc)
+    db.flush()
+
+    res = client.post("/accounts/", json=_new_acc)
+    assert res.status_code == 409
+
+
+def test_block_acc(client, db_acc, db):
+    res = client.put(f"/accounts/{db_acc.id}/block")
+    assert res.status_code == 200
+
+    _acc = db.query(Account).filter_by(id=db_acc.id).first()
+    assert _acc.is_active is False
+
+
+def test_block_acc_not_found(client):
+    res = client.put(f"/accounts/{random_name()}/block")
+    assert res.status_code == 404
+
+
+def test_block_acc_already_blocked(client, db, db_acc):
+    db_acc.is_active = False
+    db.flush()
+    db.refresh(db_acc)
+
+    res = client.put(f"/accounts/{db_acc.id}/block")
+    assert res.status_code == 405
