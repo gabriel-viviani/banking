@@ -1,6 +1,6 @@
-# Banking Challenge
+# Banking 
 
-This repo contain the solution to the [proposed DOCK TECH challenge](https://github.com/cdt-baas/desafio-dev-api-rest)
+This repo contain a small and simple approach to a initial banking solution.
 
 ##### This repo depends on the following:
  - [Poetry dependency manager](https://python-poetry.org/docs/)
@@ -32,9 +32,9 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ### Running using Dockerfile:
 Execute following commands:
 ```sh
-cd ~/banking-challenge
-docker build -t banking-challenge
-docker run -p 80:80 -e DB_URL=postgresql://user:pw@host:5432/db banking-challenge
+cd ~/banking
+docker build -t banking
+docker run -p 80:80 -e DB_URL=postgresql://user:pw@host:5432/db banking
 ```
 ##### Now you can access [docs at](http://0.0.0.0/docs)
 

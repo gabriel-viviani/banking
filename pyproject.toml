@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "banking-challenge"
+name = "banking"
 version = "0.0.0"
 description = "Simple banking operations resolution"
 authors = ["Your Name <you@example.com>"]
